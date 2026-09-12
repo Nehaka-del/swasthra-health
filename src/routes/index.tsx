@@ -90,9 +90,7 @@ function Landing() {
             <Link to="/sign-in">Start screening</Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="touch-target px-6 text-base">
-            <Link to="/sign-in" search={{ demo: true }}>
-              Try the demo account
-            </Link>
+            <Link to="/sign-in">Try the demo account</Link>
           </Button>
         </div>
         <Disclaimer className="mt-8 max-w-2xl" />
