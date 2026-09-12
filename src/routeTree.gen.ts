@@ -11,6 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as FollowUpsRouteImport } from './routes/follow-ups'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as ScreeningRouteImport } from './routes/screening'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as BeneficiariesIndexRouteImport } from './routes/beneficiaries.index'
 import { Route as BeneficiariesIdRouteImport } from './routes/beneficiaries.$id'
@@ -24,6 +29,31 @@ const IndexRoute = IndexRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FollowUpsRoute = FollowUpsRouteImport.update({
+  id: '/follow-ups',
+  path: '/follow-ups',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralsRoute = ReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScreeningRoute = ScreeningRouteImport.update({
+  id: '/screening',
+  path: '/screening',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -50,6 +80,11 @@ const BeneficiariesNewRoute = BeneficiariesNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/follow-ups': typeof FollowUpsRoute
+  '/history': typeof HistoryRoute
+  '/notifications': typeof NotificationsRoute
+  '/referrals': typeof ReferralsRoute
+  '/screening': typeof ScreeningRoute
   '/sign-in': typeof SignInRoute
   '/beneficiaries/$id': typeof BeneficiariesIdRoute
   '/beneficiaries/new': typeof BeneficiariesNewRoute
@@ -58,6 +93,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/follow-ups': typeof FollowUpsRoute
+  '/history': typeof HistoryRoute
+  '/notifications': typeof NotificationsRoute
+  '/referrals': typeof ReferralsRoute
+  '/screening': typeof ScreeningRoute
   '/sign-in': typeof SignInRoute
   '/beneficiaries/$id': typeof BeneficiariesIdRoute
   '/beneficiaries/new': typeof BeneficiariesNewRoute
@@ -67,6 +107,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/follow-ups': typeof FollowUpsRoute
+  '/history': typeof HistoryRoute
+  '/notifications': typeof NotificationsRoute
+  '/referrals': typeof ReferralsRoute
+  '/screening': typeof ScreeningRoute
   '/sign-in': typeof SignInRoute
   '/beneficiaries/$id': typeof BeneficiariesIdRoute
   '/beneficiaries/new': typeof BeneficiariesNewRoute
@@ -77,6 +122,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/follow-ups'
+    | '/history'
+    | '/notifications'
+    | '/referrals'
+    | '/screening'
     | '/sign-in'
     | '/beneficiaries/$id'
     | '/beneficiaries/new'
@@ -85,6 +135,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/follow-ups'
+    | '/history'
+    | '/notifications'
+    | '/referrals'
+    | '/screening'
     | '/sign-in'
     | '/beneficiaries/$id'
     | '/beneficiaries/new'
@@ -93,6 +148,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/follow-ups'
+    | '/history'
+    | '/notifications'
+    | '/referrals'
+    | '/screening'
     | '/sign-in'
     | '/beneficiaries/$id'
     | '/beneficiaries/new'
@@ -102,6 +162,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  FollowUpsRoute: typeof FollowUpsRoute
+  HistoryRoute: typeof HistoryRoute
+  NotificationsRoute: typeof NotificationsRoute
+  ReferralsRoute: typeof ReferralsRoute
+  ScreeningRoute: typeof ScreeningRoute
   SignInRoute: typeof SignInRoute
   BeneficiariesIdRoute: typeof BeneficiariesIdRoute
   BeneficiariesNewRoute: typeof BeneficiariesNewRoute
@@ -122,6 +187,41 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/follow-ups': {
+      id: '/follow-ups'
+      path: '/follow-ups'
+      fullPath: '/follow-ups'
+      preLoaderRoute: typeof FollowUpsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referrals': {
+      id: '/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/screening': {
+      id: '/screening'
+      path: '/screening'
+      fullPath: '/screening'
+      preLoaderRoute: typeof ScreeningRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -158,6 +258,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  FollowUpsRoute: FollowUpsRoute,
+  HistoryRoute: HistoryRoute,
+  NotificationsRoute: NotificationsRoute,
+  ReferralsRoute: ReferralsRoute,
+  ScreeningRoute: ScreeningRoute,
   SignInRoute: SignInRoute,
   BeneficiariesIdRoute: BeneficiariesIdRoute,
   BeneficiariesNewRoute: BeneficiariesNewRoute,
