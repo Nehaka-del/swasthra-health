@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as BeneficiariesIndexRouteImport } from './routes/beneficiaries.index'
+import { Route as BeneficiariesIdRouteImport } from './routes/beneficiaries.$id'
 import { Route as BeneficiariesNewRouteImport } from './routes/beneficiaries.new'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const BeneficiariesIndexRoute = BeneficiariesIndexRouteImport.update({
   path: '/beneficiaries/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BeneficiariesIdRoute = BeneficiariesIdRouteImport.update({
+  id: '/beneficiaries/$id',
+  path: '/beneficiaries/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BeneficiariesNewRoute = BeneficiariesNewRouteImport.update({
   id: '/beneficiaries/new',
   path: '/beneficiaries/new',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRoute
+  '/beneficiaries/$id': typeof BeneficiariesIdRoute
   '/beneficiaries/new': typeof BeneficiariesNewRoute
   '/beneficiaries/': typeof BeneficiariesIndexRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRoute
+  '/beneficiaries/$id': typeof BeneficiariesIdRoute
   '/beneficiaries/new': typeof BeneficiariesNewRoute
   '/beneficiaries': typeof BeneficiariesIndexRoute
 }
@@ -60,20 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRoute
+  '/beneficiaries/$id': typeof BeneficiariesIdRoute
   '/beneficiaries/new': typeof BeneficiariesNewRoute
   '/beneficiaries/': typeof BeneficiariesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/dashboard' | '/sign-in' | '/beneficiaries/new' | '/beneficiaries/'
+    | '/'
+    | '/dashboard'
+    | '/sign-in'
+    | '/beneficiaries/$id'
+    | '/beneficiaries/new'
+    | '/beneficiaries/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/sign-in' | '/beneficiaries/new' | '/beneficiaries'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/sign-in'
+    | '/beneficiaries/$id'
+    | '/beneficiaries/new'
+    | '/beneficiaries'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/sign-in'
+    | '/beneficiaries/$id'
     | '/beneficiaries/new'
     | '/beneficiaries/'
   fileRoutesById: FileRoutesById
@@ -82,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   SignInRoute: typeof SignInRoute
+  BeneficiariesIdRoute: typeof BeneficiariesIdRoute
   BeneficiariesNewRoute: typeof BeneficiariesNewRoute
   BeneficiariesIndexRoute: typeof BeneficiariesIndexRoute
 }
@@ -116,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BeneficiariesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/beneficiaries/$id': {
+      id: '/beneficiaries/$id'
+      path: '/beneficiaries/$id'
+      fullPath: '/beneficiaries/$id'
+      preLoaderRoute: typeof BeneficiariesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/beneficiaries/new': {
       id: '/beneficiaries/new'
       path: '/beneficiaries/new'
@@ -130,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   SignInRoute: SignInRoute,
+  BeneficiariesIdRoute: BeneficiariesIdRoute,
   BeneficiariesNewRoute: BeneficiariesNewRoute,
   BeneficiariesIndexRoute: BeneficiariesIndexRoute,
 }
