@@ -33,10 +33,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   ).length;
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const raw = window.localStorage.getItem("swasthra.state.v1");
-    if (!raw || !JSON.parse(raw).chw) navigate({ to: "/sign-in" });
-  }, [navigate]);
+    if (!state.chw) navigate({ to: "/sign-in" });
+  }, [state.chw, navigate]);
+
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
