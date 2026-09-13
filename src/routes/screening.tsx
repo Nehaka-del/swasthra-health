@@ -120,7 +120,6 @@ function ScreeningFlow() {
         factors: outcome.factors,
         hbRangeLow: outcome.hbRangeLow,
         hbRangeHigh: outcome.hbRangeHigh,
-        imageDataUrl: image,
       });
       setProgress(100);
       setResult(record);
