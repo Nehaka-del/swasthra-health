@@ -9,7 +9,7 @@ import {
   Send,
   Users,
 } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { notifications } from "@/lib/selectors";
