@@ -32,9 +32,12 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     (n) => !state.readNotificationIds.includes(n.id),
   ).length;
 
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   useEffect(() => {
-    if (!state.chw) navigate({ to: "/sign-in" });
-  }, [state.chw, navigate]);
+    if (ready && !state.chw) navigate({ to: "/sign-in" });
+  }, [ready, state.chw, navigate]);
+
 
 
   return (
