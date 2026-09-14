@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { signIn, startDemo } from "@/lib/store";
 
 export const Route = createFileRoute("/sign-in")({
-  validateSearch: (s: Record<string, unknown>) => ({ demo: s["demo"] === true || s["demo"] === "true" }),
   head: () => ({
     meta: [
       { title: "Health worker sign in — SWASTHRA" },

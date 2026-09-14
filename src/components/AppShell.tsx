@@ -9,7 +9,7 @@ import {
   Send,
   Users,
 } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { notifications } from "@/lib/selectors";
@@ -32,9 +32,12 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     (n) => !state.readNotificationIds.includes(n.id),
   ).length;
 
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   useEffect(() => {
-    if (!state.chw) navigate({ to: "/sign-in" });
-  }, [state.chw, navigate]);
+    if (ready && !state.chw) navigate({ to: "/sign-in" });
+  }, [ready, state.chw, navigate]);
+
 
 
   return (

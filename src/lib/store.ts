@@ -187,7 +187,7 @@ function buildSeed(): Partial<AppState> {
       village,
       healthId: `MH-ANM-${4100 + i}`,
       pregnant,
-      trimester: pregnant ? ((i % 3) + 1).toString() as "1" | "2" | "3" : undefined,
+      ...(pregnant ? { trimester: (((i % 3) + 1).toString() as "1" | "2" | "3") } : {}),
       priorAnemia,
       createdAt: daysAgo(40 - i * 4),
     }),
