@@ -67,7 +67,7 @@ function NewBeneficiary() {
       village: form.village.trim() || "Unspecified",
       healthId: form.healthId.trim() || `LOCAL-${uid("id").slice(-5).toUpperCase()}`,
       pregnant,
-      trimester: pregnant ? trimester : undefined,
+      ...(pregnant ? { trimester } : {}),
       priorAnemia,
       notes: form.notes.trim(),
     });

@@ -30,9 +30,8 @@ import type { Beneficiary, ImageQuality, Questionnaire, Screening } from "@/lib/
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/screening")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    beneficiary: typeof s["beneficiary"] === "string" ? s["beneficiary"] : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { beneficiary?: string } =>
+    typeof s["beneficiary"] === "string" ? { beneficiary: s["beneficiary"] } : {},
   head: () => ({
     meta: [
       { title: "Guided anaemia screening — SWASTHRA" },
