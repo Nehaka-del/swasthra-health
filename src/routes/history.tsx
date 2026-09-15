@@ -93,7 +93,8 @@ function History() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold">{beneficiaryName(state, s.beneficiaryId)}</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(s.createdAt)} · {s.hbRangeLow}–{s.hbRangeHigh} g/dL · score{" "}
+                        {formatDate(s.createdAt)} · AI probability{" "}
+                        {Math.round(s.prediction.anemiaProbability * 100)}% · score{" "}
                         {s.riskScore}
                       </p>
                     </div>

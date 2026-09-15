@@ -9,7 +9,7 @@ import type {
   Screening,
 } from "./types";
 
-const KEY = "swasthra.state.v1";
+const KEY = "swasthra.state.v2";
 
 const EMPTY: AppState = {
   chw: null,
@@ -194,21 +194,26 @@ function buildSeed(): Partial<AppState> {
   );
 
   const plan: Array<[number, number, number]> = [
-    // [beneficiary index, days ago, haemoglobin]
-    [0, 1, 9.4],
-    [1, 2, 11.2],
-    [2, 3, 12.8],
-    [3, 5, 8.6],
-    [4, 9, 13.1],
-    [5, 12, 10.4],
-    [6, 20, 12.2],
-    [0, 30, 9.9],
+    // [beneficiary index, days ago, AI anaemia probability]
+    [0, 1, 0.84],
+    [1, 2, 0.58],
+    [2, 3, 0.18],
+    [3, 5, 0.91],
+    [4, 9, 0.12],
+    [5, 12, 0.66],
+    [6, 20, 0.24],
+    [0, 30, 0.79],
   ];
 
-  const screenings: Screening[] = plan.map(([bi, ago, hb], i) => {
+  const screenings: Screening[] = plan.map(([bi, ago, probability], i) => {
     const b = beneficiaries[bi]!;
-    const threshold = b.pregnant ? 11 : 12;
-    const risk = hb < threshold - 1.5 ? "high" : hb < threshold ? "moderate" : "low";
+    const threshold = b.pregnant ? 0.4 : 0.5;
+    const risk: Screening["risk"] =
+      probability >= threshold + 0.3
+        ? "high"
+        : probability >= threshold
+          ? "moderate"
+          : "low";
     const score = risk === "high" ? 68 : risk === "moderate" ? 40 : 14;
     return {
       id: `scr_demo${i}`,
@@ -231,12 +236,17 @@ function buildSeed(): Partial<AppState> {
         passed: true,
         issues: [],
       },
-      prediction: { hemoglobinEstimate: hb, confidence: 0.86, risk, source: "mock" },
+      prediction: {
+        anemiaProbability: probability,
+        visualRisk: risk,
+        model: "SWASTHRA-MobileNetV2-v1",
+        source: "api",
+      },
       risk,
       riskScore: score,
-      factors: [`Estimated haemoglobin ${hb.toFixed(1)} g/dL`],
-      hbRangeLow: Math.round((hb - 0.6) * 10) / 10,
-      hbRangeHigh: Math.round((hb + 0.6) * 10) / 10,
+      factors: [
+        `AI screening signal: ${Math.round(probability * 100)}% anaemia probability (${risk} visual band)`,
+      ],
     };
   });
 

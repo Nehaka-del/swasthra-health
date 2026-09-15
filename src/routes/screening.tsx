@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { assessImageQuality } from "@/lib/image-quality";
 import { RISK_ACTION, RISK_LABEL, assessRisk } from "@/lib/risk";
-import { modelMode, predictAnemia } from "@/lib/screening-service";
+import { predictAnemia } from "@/lib/screening-service";
 import { addFollowUp, addReferral, addScreening, useAppState } from "@/lib/store";
 import type { Beneficiary, ImageQuality, Questionnaire, Screening } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -117,8 +117,6 @@ function ScreeningFlow() {
         risk: outcome.risk,
         riskScore: outcome.score,
         factors: outcome.factors,
-        hbRangeLow: outcome.hbRangeLow,
-        hbRangeHigh: outcome.hbRangeHigh,
       });
       setProgress(100);
       setResult(record);
@@ -525,12 +523,12 @@ function CaptureStep({
       <Card>
         <CardContent className="space-y-4 p-8 text-center">
           <Loader2 className="mx-auto size-10 animate-spin text-primary" aria-hidden />
-          <h2 className="text-lg font-semibold">Analysing the image</h2>
+          <h2 className="text-lg font-semibold">Analyzing image…</h2>
           <p className="text-sm text-muted-foreground">
             {progress < 40
-              ? "Preparing image and metadata…"
+              ? "Sending the image to the SWASTHRA AI service…"
               : progress < 75
-                ? `Running the screening model (${modelMode === "api" ? "ML service" : "on-device simulation"})…`
+                ? "Running the screening model — the service may take a few seconds to wake up…"
                 : "Combining with the health questionnaire…"}
           </p>
           <Progress value={progress} />
@@ -688,16 +686,27 @@ function ResultStep({
         <CardContent className="space-y-4 p-5">
           <RiskBadge risk={screening.risk} size="lg" />
           <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Preliminary AI screening signal
+            </p>
             <h2 className="text-xl font-bold">{RISK_LABEL[screening.risk]}</h2>
             <p className="text-sm text-muted-foreground">
               {beneficiary.name} · {new Date(screening.createdAt).toLocaleString("en-IN")}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Metric label="Estimated haemoglobin" value={`${screening.hbRangeLow}–${screening.hbRangeHigh} g/dL`} />
-            <Metric label="Model confidence" value={`${Math.round(screening.prediction.confidence * 100)}%`} />
-            <Metric label="Risk score" value={`${screening.riskScore}/100`} />
+            <Metric
+              label="AI anaemia probability"
+              value={`${Math.round(screening.prediction.anemiaProbability * 100)}%`}
+            />
+            <Metric label="Visual risk (image)" value={screening.prediction.visualRisk} />
+            <Metric label="Combined risk score" value={`${screening.riskScore}/100`} />
           </div>
+          {screening.prediction.model && (
+            <p className="text-xs text-muted-foreground">
+              Model: {screening.prediction.model} · screening aid only
+            </p>
+          )}
           <div>
             <h3 className="mb-1 text-sm font-semibold">Contributing factors</h3>
             <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">

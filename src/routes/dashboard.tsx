@@ -145,7 +145,8 @@ function Dashboard() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{beneficiaryName(state, s.beneficiaryId)}</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(s.createdAt)} · est. {s.prediction.hemoglobinEstimate.toFixed(1)} g/dL
+                        {formatDate(s.createdAt)} · AI probability{" "}
+                        {Math.round(s.prediction.anemiaProbability * 100)}%
                       </p>
                     </div>
                     <RiskBadge risk={s.risk} />
