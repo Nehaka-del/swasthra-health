@@ -4,14 +4,13 @@ export interface RiskOutcome {
   risk: RiskLevel;
   score: number;
   factors: string[];
-  hbRangeLow: number;
-  hbRangeHigh: number;
 }
 
 /**
  * Multi-factor preliminary risk engine.
- * Combines the image-derived haemoglobin estimate with questionnaire and
- * demographic factors. Output is a screening signal only — never a diagnosis.
+ * Combines the AI image-based anaemia probability with questionnaire and
+ * demographic factors. The AI output is a binary screening signal only —
+ * never a haemoglobin measurement and never a diagnosis.
  */
 export function assessRisk(
   beneficiary: Beneficiary,
@@ -21,20 +20,24 @@ export function assessRisk(
   const factors: string[] = [];
   let score = 0;
 
-  const hb = prediction.hemoglobinEstimate;
-  const threshold = beneficiary.pregnant ? 11 : 12;
+  const probability = prediction.anemiaProbability;
+  const pct = Math.round(probability * 100);
 
-  if (hb < threshold - 2) {
+  if (probability >= 0.75) {
     score += 55;
-    factors.push(`Estimated haemoglobin ${hb.toFixed(1)} g/dL is well below ${threshold} g/dL`);
-  } else if (hb < threshold) {
-    score += 35;
-    factors.push(`Estimated haemoglobin ${hb.toFixed(1)} g/dL is below ${threshold} g/dL`);
-  } else if (hb < threshold + 0.7) {
-    score += 15;
-    factors.push(`Estimated haemoglobin ${hb.toFixed(1)} g/dL is close to the cut-off`);
+    factors.push(`AI screening signal strongly suggests anaemia (${pct}% probability)`);
+  } else if (probability >= 0.5) {
+    score += 38;
+    factors.push(`AI screening signal suggests possible anaemia (${pct}% probability)`);
+  } else if (probability >= 0.3) {
+    score += 18;
+    factors.push(`AI screening signal is borderline (${pct}% probability)`);
   } else {
-    factors.push(`Estimated haemoglobin ${hb.toFixed(1)} g/dL is within the expected range`);
+    factors.push(`AI screening signal suggests no anaemia (${pct}% probability)`);
+  }
+  if (prediction.visualRisk === "high" && probability < 0.75) {
+    score += 8;
+    factors.push("Model visual classification flagged high risk");
   }
 
   if (beneficiary.pregnant) {
@@ -83,22 +86,11 @@ export function assessRisk(
     factors.push(`High reported fatigue (${q.fatigueLevel}/10)`);
   }
 
-  if (prediction.confidence < 0.7) {
-    factors.push("Model confidence is limited — repeat capture advised");
-  }
-
   score = Math.max(0, Math.min(100, Math.round(score)));
 
   const risk: RiskLevel = score >= 55 ? "high" : score >= 28 ? "moderate" : "low";
-  const spread = prediction.confidence > 0.85 ? 0.6 : 1.1;
 
-  return {
-    risk,
-    score,
-    factors,
-    hbRangeLow: Math.round((hb - spread) * 10) / 10,
-    hbRangeHigh: Math.round((hb + spread) * 10) / 10,
-  };
+  return { risk, score, factors };
 }
 
 export const RISK_LABEL: Record<RiskLevel, string> = {
@@ -115,4 +107,4 @@ export const RISK_ACTION: Record<RiskLevel, string> = {
 };
 
 export const DISCLAIMER =
-  "SWASTHRA is a non-invasive screening aid, not a diagnostic device. Results are preliminary and must be confirmed by a laboratory haemoglobin test before any treatment decision.";
+  "This is a preliminary screening tool and not a medical diagnosis. Confirmatory hemoglobin testing and clinical evaluation are recommended.";

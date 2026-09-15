@@ -1,18 +1,29 @@
 import type { Beneficiary, ModelPrediction, Questionnaire, RiskLevel } from "./types";
 
 /**
- * Single integration point for the anaemia prediction model.
+ * Single integration point for the SWASTHRA anaemia screening model.
  *
- * Production contract (Python / FastAPI backend):
- *   POST {BASE_URL}/predict     multipart/form-data
+ * Production backend (Python / FastAPI on Render):
+ *   POST {API_BASE}/predict     multipart/form-data
  *     image: File               conjunctiva image
- *     metadata: JSON string     { age, pregnant, prior_anemia, symptoms[] }
- *   -> 200 { hemoglobin_estimate: number, confidence: number, risk: "low"|"moderate"|"high" }
+ *     metadata: JSON string     { age, gender, pregnancy, prior_anemia, symptoms[] }
+ *   -> 200 {
+ *        anemia_probability: number,   // binary classifier output, NOT haemoglobin
+ *        visual_risk: "low"|"moderate"|"high",
+ *        threshold: number,
+ *        model: string,
+ *        screening_only: true,
+ *        metadata_received: {}
+ *      }
  *
- * Set VITE_ML_API_URL to switch from the bundled mock adapter to the HTTP
- * adapter. No other file needs to change.
+ * The model is a binary anaemia classifier. It does not estimate haemoglobin
+ * concentration, so no Hb value is ever shown or derived from its output.
+ *
+ * Override the base URL with VITE_ML_API_URL if the backend moves.
  */
-const API_BASE = import.meta.env["VITE_ML_API_URL"] as string | undefined;
+const API_BASE =
+  (import.meta.env["VITE_ML_API_URL"] as string | undefined)?.replace(/\/$/, "") ??
+  "https://swasthra-anemia-api.onrender.com";
 
 export interface PredictInput {
   imageDataUrl: string;
@@ -20,102 +31,76 @@ export interface PredictInput {
   questionnaire: Questionnaire;
 }
 
-export const modelMode: "mock" | "api" = API_BASE ? "api" : "mock";
+export const modelMode: "api" = "api";
 
+export const SCREENING_UNAVAILABLE =
+  "AI screening service is temporarily unavailable. Please try again.";
+
+const VALID_RISKS: RiskLevel[] = ["low", "moderate", "high"];
+
+/**
+ * Sends the captured image to the real screening service.
+ * Throws SCREENING_UNAVAILABLE on any network/API failure — the app never
+ * fabricates a result when the service cannot be reached.
+ */
 export async function predictAnemia(input: PredictInput): Promise<ModelPrediction> {
-  return API_BASE ? httpAdapter(input, API_BASE) : mockAdapter(input);
-}
+  let blob: Blob;
+  try {
+    blob = await (await fetch(input.imageDataUrl)).blob();
+  } catch {
+    throw new Error("Could not read the captured image. Please capture again.");
+  }
 
-async function httpAdapter(input: PredictInput, base: string): Promise<ModelPrediction> {
-  const blob = await (await fetch(input.imageDataUrl)).blob();
   const form = new FormData();
   form.append("image", blob, "conjunctiva.jpg");
   form.append(
     "metadata",
     JSON.stringify({
       age: input.beneficiary.age,
-      pregnant: input.beneficiary.pregnant,
+      gender: "F",
+      pregnancy: input.beneficiary.pregnant,
       prior_anemia: input.beneficiary.priorAnemia,
       symptoms: input.questionnaire.symptoms,
     }),
   );
 
-  const res = await fetch(`${base.replace(/\/$/, "")}/predict`, { method: "POST", body: form });
-  if (!res.ok) throw new Error(`Screening service failed (${res.status})`);
-  const json = (await res.json()) as {
-    hemoglobin_estimate: number;
-    confidence: number;
-    risk: RiskLevel;
+  // No artificial timeout: the Render free tier can take tens of seconds to
+  // wake after inactivity, and that first slow response is still a valid one.
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/predict`, { method: "POST", body: form });
+  } catch {
+    throw new Error(SCREENING_UNAVAILABLE);
+  }
+  if (!res.ok) throw new Error(SCREENING_UNAVAILABLE);
+
+  let json: {
+    anemia_probability?: unknown;
+    visual_risk?: unknown;
+    threshold?: unknown;
+    model?: unknown;
   };
+  try {
+    json = (await res.json()) as typeof json;
+  } catch {
+    throw new Error(SCREENING_UNAVAILABLE);
+  }
+
+  const probability = Number(json.anemia_probability);
+  if (!Number.isFinite(probability) || probability < 0 || probability > 1) {
+    throw new Error(SCREENING_UNAVAILABLE);
+  }
+  const visualRisk = VALID_RISKS.includes(json.visual_risk as RiskLevel)
+    ? (json.visual_risk as RiskLevel)
+    : probability >= 0.5
+      ? "high"
+      : "low";
+
   return {
-    hemoglobinEstimate: json.hemoglobin_estimate,
-    confidence: json.confidence,
-    risk: json.risk,
+    anemiaProbability: probability,
+    visualRisk,
+    ...(typeof json.threshold === "number" ? { threshold: json.threshold } : {}),
+    ...(typeof json.model === "string" ? { model: json.model } : {}),
     source: "api",
   };
-}
-
-/** Deterministic, image-derived simulation so demo runs are reproducible. */
-async function mockAdapter(input: PredictInput): Promise<ModelPrediction> {
-  await new Promise((r) => setTimeout(r, 1400));
-
-  const paleness = await estimatePaleness(input.imageDataUrl);
-  const { beneficiary, questionnaire } = input;
-
-  let hb = 14.2 - paleness * 6.5;
-  if (beneficiary.pregnant) hb -= 0.7;
-  if (beneficiary.priorAnemia) hb -= 0.5;
-  hb -= Math.min(questionnaire.symptoms.length, 5) * 0.25;
-  if (questionnaire.dietIronRich === "rarely") hb -= 0.5;
-  hb = Math.max(5.5, Math.min(15.5, Math.round(hb * 10) / 10));
-
-  const threshold = beneficiary.pregnant ? 11 : 12;
-  const risk: RiskLevel = hb < threshold - 1.5 ? "high" : hb < threshold ? "moderate" : "low";
-  const confidence = Math.round((0.72 + Math.min(0.24, paleness * 0.3)) * 100) / 100;
-
-  return { hemoglobinEstimate: hb, confidence, risk, source: "mock" };
-}
-
-/** Redness ratio of the central region → proxy for conjunctival pallor (0 = red, 1 = pale). */
-async function estimatePaleness(dataUrl: string): Promise<number> {
-  if (typeof document === "undefined") return 0.4;
-  const img = await loadImage(dataUrl);
-  const canvas = document.createElement("canvas");
-  const size = 96;
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return 0.4;
-  ctx.drawImage(img, 0, 0, size, size);
-  const { data } = ctx.getImageData(size * 0.25, size * 0.25, size * 0.5, size * 0.5);
-
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  const px = data.length / 4;
-  for (let i = 0; i < data.length; i += 4) {
-    r += data[i]!;
-    g += data[i + 1]!;
-    b += data[i + 2]!;
-  }
-  r /= px;
-  g /= px;
-  b /= px;
-  const total = r + g + b || 1;
-  const redRatio = r / total; // ~0.33 neutral, higher = redder
-  const paleness = clamp01((0.45 - redRatio) / 0.17);
-  return paleness;
-}
-
-function clamp01(n: number) {
-  return Math.max(0, Math.min(1, n));
-}
-
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Could not read the captured image"));
-    img.src = src;
-  });
 }

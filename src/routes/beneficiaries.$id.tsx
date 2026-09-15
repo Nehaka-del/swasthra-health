@@ -136,11 +136,10 @@ function Profile() {
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-semibold tabular-nums">
-                        {s.hbRangeLow}–{s.hbRangeHigh} g/dL estimated
+                        {Math.round(s.prediction.anemiaProbability * 100)}% AI anaemia probability
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(s.createdAt)} · confidence{" "}
-                        {Math.round(s.prediction.confidence * 100)}%
+                        {formatDate(s.createdAt)} · visual risk {s.prediction.visualRisk}
                       </p>
                     </div>
                     <RiskBadge risk={s.risk} />
