@@ -42,10 +42,15 @@ export interface ImageQuality {
 }
 
 export interface ModelPrediction {
-  hemoglobinEstimate: number;
-  confidence: number;
-  risk: RiskLevel;
-  source: "mock" | "api";
+  /** Binary classifier output: probability of anaemia (0–1). NOT a haemoglobin value. */
+  anemiaProbability: number;
+  /** Model's own visual classification band. */
+  visualRisk: RiskLevel;
+  /** Decision threshold reported by the model, if provided. */
+  threshold?: number;
+  /** Model identifier reported by the API, e.g. "SWASTHRA-MobileNetV2-v1". */
+  model?: string;
+  source: "api";
 }
 
 export interface Screening {
@@ -59,8 +64,6 @@ export interface Screening {
   risk: RiskLevel;
   riskScore: number;
   factors: string[];
-  hbRangeLow: number;
-  hbRangeHigh: number;
   imageDataUrl?: string;
 }
 
