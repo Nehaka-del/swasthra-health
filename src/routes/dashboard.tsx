@@ -39,6 +39,12 @@ function Dashboard() {
 
   return (
     <AppShell>
+      <img
+        src={heroAsset.url}
+        alt="SWASTHRA — Small Screenings, Big Change. AI-assisted anaemia risk screening for community health workers."
+        className="mb-5 w-full object-contain"
+      />
+
       <div className="mb-5">
         <p className="text-sm text-muted-foreground">Namaste,</p>
         <h1 className="text-2xl font-bold">{state.chw?.name ?? "Health worker"}</h1>
