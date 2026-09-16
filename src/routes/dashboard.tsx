@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { CalendarClock, ClipboardList, Plus, ScanEye, Send, Users } from "lucide-react";
 
+import heroAsset from "@/assets/dashboard-hero.jpeg.asset.json";
 import { AppShell } from "@/components/AppShell";
 import { Disclaimer } from "@/components/Disclaimer";
 import { RiskBadge } from "@/components/RiskBadge";
@@ -38,6 +39,12 @@ function Dashboard() {
 
   return (
     <AppShell>
+      <img
+        src={heroAsset.url}
+        alt="SWASTHRA — Small Screenings, Big Change. AI-assisted anaemia risk screening for community health workers."
+        className="mb-5 w-full object-contain"
+      />
+
       <div className="mb-5">
         <p className="text-sm text-muted-foreground">Namaste,</p>
         <h1 className="text-2xl font-bold">{state.chw?.name ?? "Health worker"}</h1>
