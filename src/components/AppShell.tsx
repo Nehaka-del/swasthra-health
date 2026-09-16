@@ -3,7 +3,6 @@ import {
   Bell,
   CalendarClock,
   ClipboardList,
-  Droplet,
   Home,
   LogOut,
   Send,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
+import logoAsset from "@/assets/swasthra-logo.jpeg.asset.json";
 import { Button } from "@/components/ui/button";
 import { notifications } from "@/lib/selectors";
 import { signOut, useAppState } from "@/lib/store";
@@ -44,11 +44,12 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-          <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Droplet className="size-5" aria-hidden />
-            </span>
-            <span className="font-display text-lg font-bold tracking-tight">SWASTHRA</span>
+          <Link to="/dashboard" className="flex items-center" aria-label="SWASTHRA home">
+            <img
+              src={logoAsset.url}
+              alt="SWASTHRA — Innovation meets healthcare"
+              className="h-11 w-auto object-contain"
+            />
           </Link>
           <div className="ml-auto flex items-center gap-1">
             <Button asChild variant="ghost" size="icon" className="relative size-11">

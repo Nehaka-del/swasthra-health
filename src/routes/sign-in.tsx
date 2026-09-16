@@ -1,7 +1,9 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Droplet, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
+import logoAsset from "@/assets/swasthra-logo.jpeg.asset.json";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,11 +58,12 @@ function SignIn() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-10">
-      <Link to="/" className="mb-6 flex items-center gap-2">
-        <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-          <Droplet className="size-5" aria-hidden />
-        </span>
-        <span className="font-display text-xl font-bold">SWASTHRA</span>
+      <Link to="/" className="mb-6 flex items-center" aria-label="SWASTHRA home">
+        <img
+          src={logoAsset.url}
+          alt="SWASTHRA — Innovation meets healthcare"
+          className="h-16 w-auto object-contain"
+        />
       </Link>
 
       <Card className="w-full max-w-md">
