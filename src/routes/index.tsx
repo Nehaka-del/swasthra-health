@@ -3,7 +3,6 @@ import {
   Activity,
   CameraIcon,
   ClipboardList,
-  Droplet,
   ScanEye,
   Send,
   ShieldCheck,
@@ -11,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 
+import logoAsset from "@/assets/swasthra-logo.jpeg.asset.json";
 import { Disclaimer } from "@/components/Disclaimer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -64,10 +64,11 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-4">
-        <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-          <Droplet className="size-5" aria-hidden />
-        </span>
-        <span className="font-display text-lg font-bold">SWASTHRA</span>
+        <img
+          src={logoAsset.url}
+          alt="SWASTHRA — Innovation meets healthcare"
+          className="h-12 w-auto object-contain"
+        />
         <Button asChild className="ml-auto touch-target px-5">
           <Link to="/sign-in">Open the app</Link>
         </Button>
