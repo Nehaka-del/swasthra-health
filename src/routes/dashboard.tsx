@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { CalendarClock, ClipboardList, Plus, ScanEye, Send, Users } from "lucide-react";
 
+import heroAsset from "@/assets/dashboard-hero.jpeg.asset.json";
 import { AppShell } from "@/components/AppShell";
 import { Disclaimer } from "@/components/Disclaimer";
 import { RiskBadge } from "@/components/RiskBadge";
